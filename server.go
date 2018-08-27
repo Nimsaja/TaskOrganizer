@@ -1,13 +1,17 @@
 package main
 
 import (
+	"bufio"
 	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
+	"os"
 
 	"github.com/gorilla/mux"
 )
+
+var path = "output.txt"
 
 // handle CORS and the OPION method
 func corsAndOptionHandler(h http.Handler) http.HandlerFunc {
@@ -40,8 +44,8 @@ func handler() http.Handler {
 func main() {
 	// http.HandleFunc("/tasks", taskList)
 	http.Handle("/", handler())
-	log.Fatalln(http.ListenAndServe(":8080", nil))
 	log.Println("Init is ready and start the server on: http://localhost:8080")
+	log.Fatalln(http.ListenAndServe(":8080", nil))
 }
 
 func taskList(w http.ResponseWriter, r *http.Request) {
@@ -49,15 +53,40 @@ func taskList(w http.ResponseWriter, r *http.Request) {
 
 	text := r.FormValue("text")
 
-	if len(text) == 0 {
-		text = "This is my first task entry! :-D"
-	}
+	appendToOutputFile(text)
 
-	b, err := json.Marshal(text)
+	readFile(w)
+}
+
+func appendToOutputFile(t string) {
+	f, err := os.OpenFile(path, os.O_APPEND|os.O_WRONLY|os.O_CREATE, 0600)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
+		log.Printf("Error %s ", err)
+		panic(err)
 	}
 
-	fmt.Fprintf(w, "%s", string(b))
+	defer f.Close()
+
+	fmt.Fprintln(f, t)
+}
+
+func readFile(w http.ResponseWriter) {
+	f, err := os.OpenFile(path, os.O_RDONLY, 0600)
+	if err != nil {
+		log.Printf("Error %s ", err)
+		panic(err)
+	}
+
+	defer f.Close()
+
+	scanner := bufio.NewScanner(f)
+	for scanner.Scan() {
+		b, err := json.Marshal(scanner.Text())
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprintf(w, "%s\n", string(b))
+	}
 }
