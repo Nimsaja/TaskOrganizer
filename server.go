@@ -30,7 +30,6 @@ func handler() http.Handler {
 
 	url := "/tasks"
 	router.HandleFunc(url, taskList).Methods("GET")
-	router.HandleFunc(url, addTask).Methods("PUT").Queries("text", "{text}")
 	router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid method: "+r.Method, http.StatusBadRequest)
 	}).Methods("DELETE", "PATH", "COPY", "HEAD", "LINK", "UNLINK", "PURGE", "LOCK", "UNLOCK", "VIEW", "PROPFIND")
@@ -40,26 +39,20 @@ func handler() http.Handler {
 
 func main() {
 	// http.HandleFunc("/tasks", taskList)
-	// log.Fatalln(http.ListenAndServe(":8080", nil))
 	http.Handle("/", handler())
+	log.Fatalln(http.ListenAndServe(":8080", nil))
 	log.Println("Init is ready and start the server on: http://localhost:8080")
 }
 
 func taskList(w http.ResponseWriter, r *http.Request) {
-	text := "This is my first task entry! :-D"
+	log.Println("taskList...")
 
-	b, err := json.Marshal(text)
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
-		return
-	}
-
-	fmt.Fprintf(w, "%s", string(b))
-}
-
-func addTask(w http.ResponseWriter, r *http.Request) {
 	text := r.FormValue("text")
 
+	if len(text) == 0 {
+		text = "This is my first task entry! :-D"
+	}
+
 	b, err := json.Marshal(text)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -67,5 +60,4 @@ func addTask(w http.ResponseWriter, r *http.Request) {
 	}
 
 	fmt.Fprintf(w, "%s", string(b))
-
 }
