@@ -49,12 +49,11 @@ func main() {
 
 	http.Handle("/", handler())
 
-	if inCloud {
-		appengine.Main()
-	} else {
-		log.Println("Init is ready and start the server on: http://localhost:8080")
-		log.Fatalln(http.ListenAndServe(":8080", nil))
-	}
+	appengine.Main()
+	//log.Println("Init is ready and start the server on: http://localhost:8080")
+	
+	//log.Fatalln(http.ListenAndServe(":8080", nil))
+	
 }
 
 func taskList(w http.ResponseWriter, r *http.Request) {
