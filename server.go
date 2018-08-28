@@ -42,10 +42,12 @@ func handler() http.Handler {
 }
 
 func main() {
-	// http.HandleFunc("/tasks", taskList)
 	http.Handle("/", handler())
 	log.Println("Init is ready and start the server on: http://localhost:8080")
 	log.Fatalln(http.ListenAndServe(":8080", nil))
+
+	//replace the two lines above with this one when on the cloud!
+	// appengine.Main()
 }
 
 func taskList(w http.ResponseWriter, r *http.Request) {
