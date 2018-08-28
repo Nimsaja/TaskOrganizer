@@ -8,3 +8,7 @@ api_version: go1
 handlers:
 - url: /.*
   script: _go_app
+
+env_variables:
+  RUN_IN_CLOUD: 'TRUE'
+
