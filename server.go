@@ -9,9 +9,11 @@ import (
 	"os"
 
 	"github.com/gorilla/mux"
+	"google.golang.org/appengine"
 )
 
 var path = "output.txt"
+var inCloud bool
 
 // handle CORS and the OPION method
 func corsAndOptionHandler(h http.Handler) http.HandlerFunc {
@@ -42,22 +44,40 @@ func handler() http.Handler {
 }
 
 func main() {
-	http.Handle("/", handler())
-	log.Println("Init is ready and start the server on: http://localhost:8080")
-	log.Fatalln(http.ListenAndServe(":8080", nil))
+	// inCloud, _ := strconv.ParseBool(os.Getenv("RUN_IN_CLOUD"))
+	inCloud = true
 
-	//replace the two lines above with this one when on the cloud!
-	// appengine.Main()
+	http.Handle("/", handler())
+
+	if inCloud {
+		appengine.Main()
+	} else {
+		log.Println("Init is ready and start the server on: http://localhost:8080")
+		log.Fatalln(http.ListenAndServe(":8080", nil))
+	}
 }
 
 func taskList(w http.ResponseWriter, r *http.Request) {
-	log.Println("taskList...")
-
 	text := r.FormValue("text")
 
-	appendToOutputFile(text)
+	if inCloud {
+		if len(text) == 0 {
+			text = "Try to change the url to .../tasks?text=MyText"
+		}
 
-	readFile(w)
+		b, err := json.Marshal(text)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		fmt.Fprintf(w, "%s", string(b))
+	} else {
+
+		appendToOutputFile(text)
+
+		readFile(w)
+	}
 }
 
 func appendToOutputFile(t string) {
