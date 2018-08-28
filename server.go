@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strconv"
 
 	"github.com/gorilla/mux"
 	"google.golang.org/appengine"
@@ -44,16 +45,15 @@ func handler() http.Handler {
 }
 
 func main() {
-	// inCloud, _ := strconv.ParseBool(os.Getenv("RUN_IN_CLOUD"))
-	inCloud = true
+	inCloud, _ = strconv.ParseBool(os.Getenv("RUN_IN_CLOUD"))
 
 	http.Handle("/", handler())
 
 	appengine.Main()
-	//log.Println("Init is ready and start the server on: http://localhost:8080")
-	
+	// log.Println("Init is ready and start the server on: http://localhost:8080")
+
 	//log.Fatalln(http.ListenAndServe(":8080", nil))
-	
+
 }
 
 func taskList(w http.ResponseWriter, r *http.Request) {
