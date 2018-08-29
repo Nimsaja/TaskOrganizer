@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"strconv"
+	"time"
 
 	"github.com/Nimsaja/TaskOrganizer/task"
 	"github.com/gorilla/mux"
@@ -14,6 +15,8 @@ import (
 
 var path = "output.txt"
 var inCloud bool
+var lastCalledMonth = -1
+var thisCalledMonth = int(time.Now().Month())
 
 // handle CORS and the OPION method
 func corsAndOptionHandler(h http.Handler) http.HandlerFunc {
@@ -52,10 +55,24 @@ func main() {
 }
 
 func taskList(w http.ResponseWriter, r *http.Request) {
-	//For now read in the default task list everytime
+	//Try to read in stored task, if not possible (because the app is openen
+	//for the first time e.g.) read in the default task list
 	tasks := task.GetDefaultList()
 
-	writeOutAsJSON(w, tasks)
+	//if currentMonth is different to the saved actMonth recalculate the nextMonth property
+	if thisCalledMonth != lastCalledMonth {
+		var tasksPointers []*task.Task
+		for i := 0; i < len(tasks); i++ {
+			tasksPointers = append(tasksPointers, &tasks[i])
+		}
+		task.RecalculateNextMonthProp(tasksPointers, thisCalledMonth)
+
+		lastCalledMonth = thisCalledMonth
+
+		writeOutAsJSON(w, tasksPointers)
+	} else {
+		writeOutAsJSON(w, tasks)
+	}
 }
 
 func writeOutAsJSON(w http.ResponseWriter, v interface{}) {
