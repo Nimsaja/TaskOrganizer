@@ -6,25 +6,31 @@ import (
 
 // Task the struct
 type Task struct {
-	Name  string `json:"name"`
-	Descr string `json:"desc"`
-	Freq  int8   `json:"freq"`
-	Start int8   `json:"start"`
-	Done  bool   `json:"done"`
-	Next  int8   `json:"next"`
+	Name        string `json:"name"`
+	Descr       string `json:"desc"`
+	Freq        int8   `json:"freq"`
+	Start       int8   `json:"start"`
+	MonthStatus Done   `json:"monthstatus"`
+	Next        int8   `json:"next"`
+}
+
+// Done to have the month nb and status for the 3 months
+type Done struct {
+	Month  []int8 `json:"month"`
+	Status []bool `json:"status"`
 }
 
 var tasks = []Task{
-	Task{Name: "Living Room", Descr: "clean", Freq: 3, Start: 1, Done: false},
-	Task{Name: "Sleeping Room", Descr: "hoover the floor", Freq: 2, Start: 2, Done: false},
-	Task{Name: "Basement", Descr: "kill spiders", Freq: 6, Start: 3, Done: false},
-	Task{Name: "Bathroom", Descr: "clean the shower", Freq: 3, Start: 4, Done: false},
-	Task{Name: "Kitchen", Descr: "clean cupboards", Freq: 4, Start: 5, Done: false},
-	Task{Name: "Corridor", Descr: "hoover", Freq: 2, Start: 6, Done: false},
-	Task{Name: "Bed", Descr: "change the sheets", Freq: 2, Start: 7, Done: false},
-	Task{Name: "Kitchen", Descr: "clean the fridge", Freq: 12, Start: 8, Done: false},
-	Task{Name: "Living Room", Descr: "clean the cupboards", Freq: 3, Start: 9, Done: false},
-	Task{Name: "Guest Room", Descr: "clean", Freq: 4, Start: 10, Done: false},
+	Task{Name: "Living Room", Descr: "clean", Freq: 3, Start: 1},
+	Task{Name: "Sleeping Room", Descr: "hoover the floor", Freq: 2, Start: 2},
+	Task{Name: "Basement", Descr: "kill spiders", Freq: 6, Start: 3},
+	Task{Name: "Bathroom", Descr: "clean the shower", Freq: 3, Start: 4},
+	Task{Name: "Kitchen", Descr: "clean cupboards", Freq: 4, Start: 5},
+	Task{Name: "Corridor", Descr: "hoover", Freq: 2, Start: 6},
+	Task{Name: "Bed", Descr: "change the sheets", Freq: 2, Start: 7},
+	Task{Name: "Kitchen", Descr: "clean the fridge", Freq: 12, Start: 8},
+	Task{Name: "Living Room", Descr: "clean the cupboards", Freq: 3, Start: 9},
+	Task{Name: "Guest Room", Descr: "clean", Freq: 4, Start: 10},
 }
 
 // SetTasksList override default task list

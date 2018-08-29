@@ -47,7 +47,7 @@ func TestTaskList(t *testing.T) {
 	}
 
 	// check entry 6
-	if testTasks[6] != tasks[6] {
+	if testTasks[6].Name != tasks[6].Name {
 		t.Errorf("task 6 expected: %v and get: %v", testTasks[6], tasks[6])
 	}
 
@@ -58,7 +58,7 @@ func TestRecalcOfNextMonthIfRunTheFirstTime(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	newTasks := make([]task.Task, 0)
-	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1, Done: false}
+	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1}
 	newTasks = append(newTasks, tk)
 
 	task.SetTasksList(newTasks)
@@ -95,7 +95,7 @@ func TestRecalcOfNextMonthIfRunTheSecondTime(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	newTasks := make([]task.Task, 0)
-	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1, Done: false}
+	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1}
 	newTasks = append(newTasks, tk)
 
 	task.SetTasksList(newTasks)
@@ -130,7 +130,7 @@ func TestRecalcOfNextMonthIfMonthChanged(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	newTasks := make([]task.Task, 0)
-	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1, Done: false}
+	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1}
 	newTasks = append(newTasks, tk)
 
 	task.SetTasksList(newTasks)
