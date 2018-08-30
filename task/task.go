@@ -26,11 +26,18 @@ var tasks = []Task{
 	Task{Name: "Guest Room", Descr: "clean", Freq: 4, Start: 10},
 }
 
+// DefaultTasks default tasks to begin with and to test against
+var DefaultTasks = tasks
+
 var monthList = make(map[int][]Task)
 
 // SetTasksList override default task list
 func SetTasksList(list []Task) {
-	tasks = list
+	if list == nil {
+		tasks = DefaultTasks
+	} else {
+		tasks = list
+	}
 }
 
 // GetDefaultList a list of task to start with

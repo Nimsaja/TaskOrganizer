@@ -42,7 +42,7 @@ func handler() http.Handler {
 	router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid method: "+r.Method, http.StatusBadRequest)
 	}).Methods("DELETE", "PATH", "COPY", "HEAD", "LINK", "UNLINK", "PURGE", "LOCK", "UNLOCK", "VIEW", "PROPFIND")
-	urlWithMonth := "/tasks/{id:[0-9]+}"
+	urlWithMonth := "/tasks/{m:[0-9]+}"
 	router.HandleFunc(urlWithMonth, monthTasks).Methods("GET")
 	router.HandleFunc(urlWithMonth, func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid method: "+r.Method, http.StatusBadRequest)
@@ -81,19 +81,14 @@ func taskList(w http.ResponseWriter, r *http.Request) {
 }
 
 func monthTasks(w http.ResponseWriter, r *http.Request) {
-	fmt.Printf("URL %v\n", r.URL)
-
 	vars := mux.Vars(r)
-	varMonth := vars["id"]
-	fmt.Printf("varMonth %v\n", varMonth)
+	varMonth := vars["m"]
 
 	month, err := strconv.Atoi(varMonth)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("invalid month: %v in params: %v", vars, month), http.StatusBadRequest)
 		return
 	}
-
-	fmt.Printf("month %v\n", month)
 
 	tasks := task.GetTaskForMonth(month)
 

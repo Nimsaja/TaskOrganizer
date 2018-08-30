@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/Nimsaja/TaskOrganizer/task"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -165,7 +166,11 @@ func TestRecalcOfNextMonthIfMonthChanged(t *testing.T) {
 }
 
 func TestMonthTasks(t *testing.T) {
-	r := httptest.NewRequest("GET", "http://localhost:8080/tasks/6", nil)
+	//reset to default task List
+	task.SetTasksList(nil)
+
+	r := httptest.NewRequest("GET", "http://localhost:8080/tasks", nil)
+	r = mux.SetURLVars(r, map[string]string{"m": "6"})
 	w := httptest.NewRecorder()
 	monthTasks(w, r)
 
