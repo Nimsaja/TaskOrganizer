@@ -6,18 +6,11 @@ import (
 
 // Task the struct
 type Task struct {
-	Name        string `json:"name"`
-	Descr       string `json:"desc"`
-	Freq        int8   `json:"freq"`
-	Start       int8   `json:"start"`
-	MonthStatus Done   `json:"monthstatus"`
-	Next        int8   `json:"next"`
-}
-
-// Done to have the month nb and status for the 3 months
-type Done struct {
-	Month  []int8 `json:"month"`
-	Status []bool `json:"status"`
+	Name  string `json:"name"`
+	Descr string `json:"desc"`
+	Freq  int8   `json:"freq"`
+	Start int8   `json:"start"`
+	Next  int8   `json:"next"`
 }
 
 var tasks = []Task{
@@ -33,6 +26,8 @@ var tasks = []Task{
 	Task{Name: "Guest Room", Descr: "clean", Freq: 4, Start: 10},
 }
 
+var monthList = make(map[int][]Task)
+
 // SetTasksList override default task list
 func SetTasksList(list []Task) {
 	tasks = list
@@ -46,9 +41,6 @@ func GetDefaultList() []Task {
 // GetNextMonthForTask ...
 func GetNextMonthForTask(t Task, m int) int {
 	next := (float64(m+1) - float64(t.Start+1)) / float64(t.Freq)
-	if next < 0 {
-		next = -next
-	}
 	next = math.Ceil(next)*float64(t.Freq) + float64(t.Start+1)
 	nextInt := int(next)%12 - 1
 
@@ -63,4 +55,32 @@ func RecalculateNextMonthProp(tasks []*Task, m int) {
 	for _, el := range tasks {
 		el.Next = int8(GetNextMonthForTask(*el, m))
 	}
+}
+
+// GetTaskForMonth gets or calculates the list of tasks for month @m
+func GetTaskForMonth(m int) []Task {
+	_, exists := monthList[m]
+
+	if !exists {
+		//calculate task list, save and return
+		l := make([]Task, 0)
+		for _, el := range tasks {
+			if GetNextMonthForTask(el, m) == m {
+				l = append(l, el)
+			}
+		}
+		monthList[m] = l
+
+		//need to remove old task lists - everything that is older than 3 month
+		//to keep it simple just calculate the difference of the two months
+		if len(monthList) > 3 {
+			for key := range monthList {
+				if math.Abs(float64(key-m)) > 3 {
+					delete(monthList, key)
+				}
+			}
+		}
+	}
+
+	return monthList[m]
 }

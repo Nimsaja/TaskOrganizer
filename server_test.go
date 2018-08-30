@@ -163,3 +163,28 @@ func TestRecalcOfNextMonthIfMonthChanged(t *testing.T) {
 		t.Errorf("last Called Month value in server.go expected: %v and get: %v", 7, lastCalledMonth)
 	}
 }
+
+func TestMonthTasks(t *testing.T) {
+	r := httptest.NewRequest("GET", "http://localhost:8080/tasks/6", nil)
+	w := httptest.NewRecorder()
+	monthTasks(w, r)
+
+	// check status code
+	resp := w.Result()
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected status ok (200), but is: %v", resp.StatusCode)
+	}
+
+	// results
+	tasks := make([]task.Task, 0)
+	body, _ := ioutil.ReadAll(resp.Body)
+	err := json.Unmarshal(body, &tasks)
+	if err != nil {
+		t.Errorf("No err expected: %v", err)
+	}
+
+	// check size of tasks
+	if len(tasks) != 4 {
+		t.Errorf("task size expected: %v and get: %v", 4, len(tasks))
+	}
+}
