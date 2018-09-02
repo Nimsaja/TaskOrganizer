@@ -62,25 +62,30 @@ func main() {
 func taskList(w http.ResponseWriter, r *http.Request) {
 	//Try to read in stored task, if not possible (because the app is opened
 	//for the first time e.g.) read in the default task list
-	tasks := task.GetDefaultList()
+	s := r.URL.Query().Get("owner")
+	o := task.New(s)
 
 	//if currentMonth is different to the saved actMonth recalculate the nextMonth property
 	if thisCalledMonth != lastCalledMonth {
-		var tasksPointers []*task.Task
-		for i := 0; i < len(tasks); i++ {
-			tasksPointers = append(tasksPointers, &tasks[i])
-		}
-		task.RecalculateNextMonthProp(tasksPointers, thisCalledMonth)
-
+		o.RecalculateNextMonthProp(thisCalledMonth)
 		lastCalledMonth = thisCalledMonth
 
-		writeOutAsJSON(w, tasksPointers)
+		for t := range o.Tasks {
+			fmt.Println(t)
+		}
+
+		writeOutAsJSON(w, o.Tasks)
 	} else {
-		writeOutAsJSON(w, tasks)
+		writeOutAsJSON(w, o.Tasks)
 	}
 }
 
 func monthTasks(w http.ResponseWriter, r *http.Request) {
+	s := r.URL.Query().Get("owner")
+
+	//for now take default list TODO: create hashmap ownerName - organizer sync!
+	o := task.New(s)
+
 	vars := mux.Vars(r)
 	varMonth := vars["m"]
 
@@ -90,7 +95,7 @@ func monthTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks := task.GetTaskForMonth(month)
+	tasks := o.GetTaskForMonth(month)
 
 	writeOutAsJSON(w, tasks)
 }
