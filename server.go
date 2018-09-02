@@ -60,7 +60,7 @@ func main() {
 }
 
 func taskList(w http.ResponseWriter, r *http.Request) {
-	//Try to read in stored task, if not possible (because the app is openen
+	//Try to read in stored task, if not possible (because the app is opened
 	//for the first time e.g.) read in the default task list
 	tasks := task.GetDefaultList()
 
