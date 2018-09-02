@@ -42,6 +42,11 @@ func handler() http.Handler {
 	router.HandleFunc(url, func(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "invalid method: "+r.Method, http.StatusBadRequest)
 	}).Methods("DELETE", "PATH", "COPY", "HEAD", "LINK", "UNLINK", "PURGE", "LOCK", "UNLOCK", "VIEW", "PROPFIND")
+	urlWithMonth := "/tasks/{m:[0-9]+}"
+	router.HandleFunc(urlWithMonth, monthTasks).Methods("GET")
+	router.HandleFunc(urlWithMonth, func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "invalid method: "+r.Method, http.StatusBadRequest)
+	}).Methods("DELETE", "PATH", "COPY", "HEAD", "LINK", "UNLINK", "PURGE", "LOCK", "UNLOCK", "VIEW", "PROPFIND")
 
 	return corsAndOptionHandler(router)
 }
@@ -73,6 +78,21 @@ func taskList(w http.ResponseWriter, r *http.Request) {
 	} else {
 		writeOutAsJSON(w, tasks)
 	}
+}
+
+func monthTasks(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	varMonth := vars["m"]
+
+	month, err := strconv.Atoi(varMonth)
+	if err != nil {
+		http.Error(w, fmt.Sprintf("invalid month: %v in params: %v", vars, month), http.StatusBadRequest)
+		return
+	}
+
+	tasks := task.GetTaskForMonth(month)
+
+	writeOutAsJSON(w, tasks)
 }
 
 func writeOutAsJSON(w http.ResponseWriter, v interface{}) {

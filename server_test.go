@@ -9,6 +9,7 @@ import (
 	"testing"
 
 	"github.com/Nimsaja/TaskOrganizer/task"
+	"github.com/gorilla/mux"
 )
 
 var (
@@ -47,7 +48,7 @@ func TestTaskList(t *testing.T) {
 	}
 
 	// check entry 6
-	if testTasks[6] != tasks[6] {
+	if testTasks[6].Name != tasks[6].Name {
 		t.Errorf("task 6 expected: %v and get: %v", testTasks[6], tasks[6])
 	}
 
@@ -58,7 +59,7 @@ func TestRecalcOfNextMonthIfRunTheFirstTime(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	newTasks := make([]task.Task, 0)
-	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1, Done: false}
+	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1}
 	newTasks = append(newTasks, tk)
 
 	task.SetTasksList(newTasks)
@@ -95,7 +96,7 @@ func TestRecalcOfNextMonthIfRunTheSecondTime(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	newTasks := make([]task.Task, 0)
-	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1, Done: false}
+	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1}
 	newTasks = append(newTasks, tk)
 
 	task.SetTasksList(newTasks)
@@ -130,7 +131,7 @@ func TestRecalcOfNextMonthIfMonthChanged(t *testing.T) {
 	w := httptest.NewRecorder()
 
 	newTasks := make([]task.Task, 0)
-	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1, Done: false}
+	tk := task.Task{Name: "Test", Descr: "every month", Freq: 1, Start: 1}
 	newTasks = append(newTasks, tk)
 
 	task.SetTasksList(newTasks)
@@ -161,5 +162,34 @@ func TestRecalcOfNextMonthIfMonthChanged(t *testing.T) {
 
 	if lastCalledMonth != 7 {
 		t.Errorf("last Called Month value in server.go expected: %v and get: %v", 7, lastCalledMonth)
+	}
+}
+
+func TestMonthTasks(t *testing.T) {
+	//reset to default task List
+	task.SetTasksList(nil)
+
+	r := httptest.NewRequest("GET", "http://localhost:8080/tasks", nil)
+	r = mux.SetURLVars(r, map[string]string{"m": "6"})
+	w := httptest.NewRecorder()
+	monthTasks(w, r)
+
+	// check status code
+	resp := w.Result()
+	if resp.StatusCode != http.StatusOK {
+		t.Errorf("expected status ok (200), but is: %v", resp.StatusCode)
+	}
+
+	// results
+	tasks := make([]task.Task, 0)
+	body, _ := ioutil.ReadAll(resp.Body)
+	err := json.Unmarshal(body, &tasks)
+	if err != nil {
+		t.Errorf("No err expected: %v", err)
+	}
+
+	// check size of tasks
+	if len(tasks) != 4 {
+		t.Errorf("task size expected: %v and get: %v", 4, len(tasks))
 	}
 }
