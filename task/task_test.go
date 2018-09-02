@@ -82,9 +82,12 @@ func TestCalculateMonthList(t *testing.T) {
 			t.Errorf("should find %v tasks for month %v and get: %v", tt.expected, tt.m, len(list))
 		}
 	}
+}
 
-	//should remove list for month 0, 1 and 2
-	//TODO: split this test here when owner functionality is implemented!!
+func TestAfterCreating4thMonthListDeleteOldOnes(t *testing.T) {
+	o := New("Test")
+
+	//should remove list for month 0, 1 and 2 if a 4th list is created
 	var testLists = []struct {
 		m        int    // input: month
 		expected bool   // expected result: if list exists
@@ -95,6 +98,14 @@ func TestCalculateMonthList(t *testing.T) {
 		{2, false, "list for month %v should be not available!"},
 		{6, true, "list for month %v should be available!"},
 	}
+
+	//create some month lists to initialize
+	for m := 0; m < 4; m++ {
+		o.GetTaskForMonth(m)
+	}
+
+	//create 4th list
+	o.GetTaskForMonth(6)
 
 	for _, tt := range testLists {
 		_, ok := o.monthList[tt.m]
