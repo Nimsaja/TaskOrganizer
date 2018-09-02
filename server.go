@@ -6,17 +6,14 @@ import (
 	"net/http"
 	"os"
 	"strconv"
-	"time"
 
 	"github.com/Nimsaja/TaskOrganizer/task"
+	"github.com/Nimsaja/TaskOrganizer/taskview"
 	"github.com/gorilla/mux"
 	"google.golang.org/appengine"
 )
 
-var path = "output.txt"
 var inCloud bool
-var lastCalledMonth = -1
-var thisCalledMonth = int(time.Now().Month())
 
 // handle CORS and the OPION method
 func corsAndOptionHandler(h http.Handler) http.HandlerFunc {
@@ -60,30 +57,18 @@ func main() {
 }
 
 func taskList(w http.ResponseWriter, r *http.Request) {
-	//Try to read in stored task, if not possible (because the app is opened
-	//for the first time e.g.) read in the default task list
 	s := r.URL.Query().Get("owner")
+	//TODO check owner hashmap if owner has already a list (sync hashmap)!
 	o := task.New(s)
 
-	//if currentMonth is different to the saved actMonth recalculate the nextMonth property
-	if thisCalledMonth != lastCalledMonth {
-		o.RecalculateNextMonthProp(thisCalledMonth)
-		lastCalledMonth = thisCalledMonth
-
-		for t := range o.Tasks {
-			fmt.Println(t)
-		}
-
-		writeOutAsJSON(w, o.Tasks)
-	} else {
-		writeOutAsJSON(w, o.Tasks)
-	}
+	tasks := taskview.ConvertTasks2TaskViews(o.Tasks)
+	writeOutAsJSON(w, tasks)
 }
 
 func monthTasks(w http.ResponseWriter, r *http.Request) {
 	s := r.URL.Query().Get("owner")
 
-	//for now take default list TODO: create hashmap ownerName - organizer sync!
+	//TODO check owner hashmap
 	o := task.New(s)
 
 	vars := mux.Vars(r)
@@ -95,7 +80,7 @@ func monthTasks(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	tasks := o.GetTaskForMonth(month)
+	tasks := o.GetTaskForMonth(int8(month))
 
 	writeOutAsJSON(w, tasks)
 }
