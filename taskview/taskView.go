@@ -8,22 +8,21 @@ import (
 
 // TaskView the task struct for the frontend
 type TaskView struct {
-	Name  string `json:"name"`
-	Descr string `json:"desc"`
-	Freq  int8   `json:"freq"`
-	Start int8   `json:"start"`
-	Next  int8   `json:"next"`
+	task.Task
+	Next int8 `json:"next"`
 }
 
 var actMonth = int8(time.Now().Month())
 
 func convertTask2TaskView(t task.Task) TaskView {
 	return TaskView{
-		Name:  t.Name,
-		Descr: t.Descr,
-		Freq:  t.Freq,
-		Start: t.Start,
-		Next:  task.GetNextMonthForTask(t, actMonth),
+		Task: task.Task{
+			Name:  t.Name,
+			Descr: t.Descr,
+			Freq:  t.Freq,
+			Start: t.Start,
+		},
+		Next: task.GetNextMonthForTask(t, actMonth),
 	}
 }
 
