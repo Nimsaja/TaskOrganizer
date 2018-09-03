@@ -1,0 +1,12 @@
+# Doku: https://marketplace.visualstudio.com/items?itemName=humao.rest-client
+
+@url = http://localhost:8080
+
+### get all tasks
+GET {{url}}//tasks
+
+### get tasks by month
+GET {{url}}//tasks/2
+
+### get error
+DELETE  {{url}}//tasks
